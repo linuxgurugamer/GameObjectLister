@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace GameObjectLister
@@ -12,6 +13,7 @@ namespace GameObjectLister
 		public Vector2 scroll = new Vector2(0, 0);
 		static string search = "";
 		public bool understood = false;
+		bool destroy = false;
 
 		void Start ()
 		{
@@ -43,6 +45,12 @@ namespace GameObjectLister
 		{
 
 			GUILayout.BeginVertical();
+			if (destroy)
+			{
+
+				GUILayout.Label("Select object to destroy");
+
+			}
 			search = GUILayout.TextField(search);
 			scroll = GUILayout.BeginScrollView(scroll);
 			if (HighLogic.LoadedScene == GameScenes.LOADING && understood == false)
@@ -58,19 +66,50 @@ namespace GameObjectLister
 			}
 			if (understood)
 			{
-				foreach (GameObject x in FindObjectsOfType<GameObject>())
+				List<GameObject> GameObjects = new List<GameObject>( FindObjectsOfType<GameObject>());
+				for (int i = GameObjects.Count - 1; i >= 0; --i)
 				{
+
+					GameObject x = GameObjects[i];
 
 					if (search != "" && search != " ")
 					{
 						if (x.name.ToLower().Contains(search.ToLower()))
 						{
-							GUILayout.Label(x.name);
+
+							if (destroy == false)
+							{
+								GUILayout.Label(x.name);
+							}
+							else {
+
+								if (GUILayout.Button(x.name))
+								{
+
+									Destroy(x);
+
+								}
+
+							}
+
 						}
 					}
 					else {
 
-						GUILayout.Label(x.name);
+						if (destroy == false)
+						{
+							GUILayout.Label(x.name);
+						}
+						else {
+
+							if (GUILayout.Button(x.name))
+							{
+
+								Destroy(x);
+
+							}
+
+						}
 
 					}
 
@@ -83,6 +122,7 @@ namespace GameObjectLister
 
 			}
 			GUILayout.EndScrollView();
+			destroy = GUILayout.Toggle(destroy, "Destroy mode");
 			GUILayout.EndVertical();
 
 			GUI.DragWindow();
